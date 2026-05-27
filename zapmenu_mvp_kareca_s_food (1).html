@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kareca's Food - Cardápio & Delivery</title>
+    <!-- Tailwind CSS para um design elegante e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts para tipografia moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Barra de rolagem personalizada para uma experiência de navegação mais limpa */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col pb-24 md:pb-0">
+
+    <!-- CONTAINER DA APLICAÇÃO -->
+    <div id="app" class="flex-grow flex flex-col">
+        
+        <!-- ALERTAS TOAST PERSONALIZADOS -->
+        <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+        <!-- CABEÇALHO DA LOJA -->
+        <header class="bg-white border-b border-stone-100 shadow-sm sticky top-0 z-30 transition-all duration-300">
+            <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-black text-xl shadow-md border-2 border-amber-300">
+                        KF
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-lg md:text-xl text-stone-900 tracking-tight flex items-center gap-2">
+                            Kareca's Food
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800" id="store-status-badge">
+                                <span class="w-1.5 h-1.5 mr-1 bg-emerald-500 rounded-full animate-pulse"></span> Aberto
+                            </span>
+                        </h1>
+                        <p class="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
+                            <i class="fa-solid fa-location-dot text-amber-500"></i> Jd. Recanto Verde, São Paulo
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner Point Gospel -->
+            <div class="bg-amber-50 border-y border-amber-100 px-4 py-1.5 text-center text-xs font-semibold text-amber-800 flex items-center justify-center gap-2 flex-wrap">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-hands-praying"></i> Point Gospel</span>
+                <span class="hidden sm:inline">•</span>
+                <span class="flex items-center gap-1"><i class="fa-solid fa-ban"></i> Não vendemos bebidas alcoólicas</span>
+                <span class="hidden sm:inline">•</span>
+                <span class="flex items-center gap-1"><i class="fa-solid fa-music"></i> Só tocamos louvor</span>
+            </div>
+        </header>
+
+        <!-- CORPO PRINCIPAL (CARDÁPIO) -->
+        <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow flex flex-col md:flex-row gap-6">
+            
+            <!-- LISTA DE PRODUTOS E PESQUISA -->
+            <div class="flex-grow md:w-2/3">
+                
+                <!-- Barra de Pesquisa -->
+                <div class="relative mb-6">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-magnifying-glass text-stone-400"></i>
+                    </span>
+                    <input type="text" id="search-input" oninput="filterMenu()" placeholder="Buscar hambúrguer, hot dog, combo..." class="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm text-stone-700 transition-all placeholder-stone-400">
+                </div>
+
+                <!-- Abas de Categorias -->
+                <div class="flex gap-2 overflow-x-auto pb-3 mb-6 sticky top-[108px] bg-stone-50 z-20 pt-1 -mx-4 px-4 scrollbar-none">
+                    <button onclick="selectCategory('all')" class="category-btn active px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all shadow-sm bg-amber-500 text-white">
+                        🔥 Todos
+                    </button>
+                    <button onclick="selectCategory('Combos')" class="category-btn px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all shadow-sm bg-white text-stone-600 hover:bg-stone-100">
+                        🥤 Combos
+                    </button>
+                    <button onclick="selectCategory('Hambúrguer')" class="category-btn px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all shadow-sm bg-white text-stone-600 hover:bg-stone-100">
+                        🍔 Hambúrgueres
+                    </button>
+                    <button onclick="selectCategory('Hot Dog')" class="category-btn px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all shadow-sm bg-white text-stone-600 hover:bg-stone-100">
+                        🌭 Hot Dogs
+                    </button>
+                    <button onclick="selectCategory('Porções')" class="category-btn px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all shadow-sm bg-white text-stone-600 hover:bg-stone-100">
+                        🍟 Batatas Fritas
+                    </button>
+                    <button onclick="selectCategory('Bebidas')" class="category-btn px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all shadow-sm bg-white text-stone-600 hover:bg-stone-100">
+                        🥤 Bebidas
+                    </button>
+                </div>
+
+                <!-- Grid de Produtos -->
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+                
+                <!-- Estado Vazio da Pesquisa -->
+                <div id="empty-search-state" class="hidden text-center py-12 px-4 bg-white rounded-3xl border border-stone-200 mt-4">
+                    <div class="w-16 h-16 bg-stone-100 text-stone-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-face-frown text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-stone-700">Nenhum produto encontrado</h3>
+                    <p class="text-sm text-stone-500 mt-1">Tente buscar por termos diferentes ou selecione outra categoria.</p>
+                </div>
+
+            </div>
+
+            <!-- LATERAL / SIDEBAR DO CARRINHO (DESKTOP) -->
+            <div class="hidden md:block md:w-1/3">
+                <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-xl sticky top-24 max-h-[calc(100vh-120px)] flex flex-col">
+                    <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+                        <h2 class="font-extrabold text-stone-900 flex items-center gap-2">
+                            <i class="fa-solid fa-basket-shopping text-amber-500"></i> Seu Pedido
+                        </h2>
+                        <span id="cart-badge-desktop" class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">0 itens</span>
+                    </div>
+
+                    <!-- Lista de Itens do Carrinho -->
+                    <div id="cart-items-desktop" class="flex-grow overflow-y-auto space-y-3 pr-1 scrollbar-thin">
+                        <!-- Gerado dinamicamente via JS -->
+                    </div>
+
+                    <!-- Resumo Financeiro -->
+                    <div class="border-t border-stone-100 pt-4 mt-4 space-y-2">
+                        <div class="flex justify-between text-sm text-stone-600">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal-desktop">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-stone-600">
+                            <span>Taxa de Entrega</span>
+                            <span id="cart-delivery-desktop">A combinar</span>
+                        </div>
+                        <div class="flex justify-between font-black text-stone-900 text-lg border-t border-stone-100 pt-2">
+                            <span>Total</span>
+                            <span id="cart-total-desktop">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Botão Próxima Etapa -->
+                    <button onclick="openCheckoutModal()" id="desktop-checkout-btn" disabled class="w-full bg-stone-300 cursor-not-allowed text-white font-extrabold py-3.5 rounded-2xl mt-4 transition-all flex items-center justify-center gap-2 hover:shadow-lg">
+                        Finalizar Pedido <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- BARRA DO CARRINHO FLUTUANTE (CELULAR) -->
+        <div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-stone-100 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] p-4 z-40 flex items-center justify-between">
+            <div class="flex flex-col">
+                <span class="text-xs text-stone-500 font-bold" id="mobile-cart-count">0 itens</span>
+                <span class="text-xl font-black text-stone-900" id="mobile-cart-total">R$ 0,00</span>
+            </div>
+            <button onclick="openCartMobileDrawer()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-6 py-3.5 rounded-2xl flex items-center gap-2 shadow-lg transition-all active:scale-95">
+                Ver Carrinho <i class="fa-solid fa-chevron-up"></i>
+            </button>
+        </div>
+
+        <!-- DRAWER DO CARRINHO (CELULAR) -->
+        <div id="cart-mobile-drawer" class="fixed inset-0 bg-black/60 z-50 transition-opacity duration-300 opacity-0 pointer-events-none flex items-end justify-center md:hidden">
+            <div class="bg-white w-full rounded-t-[32px] max-h-[85vh] p-6 flex flex-col shadow-2xl translate-y-full transition-transform duration-300">
+                <div class="flex justify-between items-center pb-4 border-b border-stone-100 mb-4">
+                    <h2 class="font-extrabold text-stone-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-basket-shopping text-amber-500"></i> Seu Carrinho
+                    </h2>
+                    <button onclick="closeCartMobileDrawer()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:bg-stone-200">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div id="cart-items-mobile" class="flex-grow overflow-y-auto space-y-4 pb-4">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+
+                <div class="border-t border-stone-100 pt-4 space-y-2">
+                    <div class="flex justify-between text-sm text-stone-600">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal-mobile">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-stone-600">
+                        <span>Taxa de Entrega</span>
+                        <span id="cart-delivery-mobile">A combinar</span>
+                    </div>
+                    <div class="flex justify-between font-black text-stone-900 text-lg border-t border-stone-100 pt-2">
+                        <span>Total</span>
+                        <span id="cart-total-mobile">R$ 0,00</span>
+                    </div>
+                    <button onclick="openCheckoutModal()" id="mobile-checkout-btn" disabled class="w-full bg-stone-300 cursor-not-allowed text-white font-extrabold py-3.5 rounded-2xl mt-4 transition-all flex items-center justify-center gap-2 shadow-md">
+                        Prosseguir para Entrega <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CHECKOUT / DADOS DE ENTREGA -->
+        <div id="checkout-modal" class="fixed inset-0 bg-black/60 z-50 transition-opacity duration-300 opacity-0 pointer-events-none flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-lg rounded-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl scale-95 transition-transform duration-300">
+                <div class="flex justify-between items-center pb-4 border-b border-stone-100 mb-6">
+                    <h2 class="font-black text-stone-900 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-truck-fast text-amber-500"></i> Finalizar Pedido
+                    </h2>
+                    <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:bg-stone-200">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="checkout-form" onsubmit="handleCheckout(event)" class="space-y-4">
+                    <!-- Seção de Dados Pessoais -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400">Dados do Cliente</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1">Seu Nome *</label>
+                            <input type="text" id="cust-name" required placeholder="Digite seu nome completo" class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1">Seu WhatsApp (Celular) *</label>
+                            <input type="tel" id="cust-phone" required placeholder="(11) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Entrega -->
+                    <div class="space-y-3 pt-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400">Opção de Entrega</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="border-2 border-amber-500 bg-amber-50/50 rounded-xl p-3 flex items-center gap-2 cursor-pointer transition-all hover:bg-amber-50">
+                                <input type="radio" name="delivery-type" value="delivery" checked onchange="toggleDeliveryFields(true)" class="accent-amber-500">
+                                <div class="text-left">
+                                    <span class="block text-sm font-bold text-stone-800">Receber em Casa</span>
+                                    <span class="block text-xs text-amber-700" id="delivery-fee-badge">Entrega R$ 7,00</span>
+                                </div>
+                            </label>
+                            <label class="border-2 border-stone-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer transition-all hover:bg-stone-50">
+                                <input type="radio" name="delivery-type" value="retirada" onchange="toggleDeliveryFields(false)" class="accent-amber-500">
+                                <div class="text-left">
+                                    <span class="block text-sm font-bold text-stone-800">Retirar no Balcão</span>
+                                    <span class="block text-xs text-stone-500">Sem taxa</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Campos de Endereço (Ocultos se Retirada) -->
+                    <div id="address-fields" class="space-y-3 pt-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400">Endereço de Entrega</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="col-span-2">
+                                <label class="block text-xs font-semibold text-stone-600 mb-1">Rua / Avenida *</label>
+                                <input type="text" id="addr-street" required placeholder="Nome da rua" class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-stone-600 mb-1">Número *</label>
+                                <input type="text" id="addr-number" required placeholder="Nº" class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-stone-600 mb-1">Bairro *</label>
+                                <input type="text" id="addr-district" required placeholder="Bairro" class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-stone-600 mb-1">Complemento / Apto</label>
+                                <input type="text" id="addr-complement" placeholder="Apto, Bloco..." class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Método de Pagamento -->
+                    <div class="space-y-3 pt-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400">Forma de Pagamento</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="border border-stone-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:bg-stone-50">
+                                <input type="radio" name="payment-method" value="Pix" checked onchange="toggleChangeField(false)" class="accent-amber-500">
+                                <span class="text-sm font-bold text-stone-800"><i class="fa-brands fa-pix text-teal-600 mr-1.5"></i> Pix</span>
+                            </label>
+                            <label class="border border-stone-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:bg-stone-50">
+                                <input type="radio" name="payment-method" value="Cartão de Crédito" onchange="toggleChangeField(false)" class="accent-amber-500">
+                                <span class="text-sm font-bold text-stone-800"><i class="fa-regular fa-credit-card text-blue-600 mr-1.5"></i> Crédito</span>
+                            </label>
+                            <label class="border border-stone-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:bg-stone-50">
+                                <input type="radio" name="payment-method" value="Cartão de Débito" onchange="toggleChangeField(false)" class="accent-amber-500">
+                                <span class="text-sm font-bold text-stone-800"><i class="fa-solid fa-credit-card text-indigo-600 mr-1.5"></i> Débito</span>
+                            </label>
+                            <label class="border border-stone-200 rounded-xl p-3 flex items-center gap-2 cursor-pointer hover:bg-stone-50">
+                                <input type="radio" name="payment-method" value="Dinheiro" onchange="toggleChangeField(true)" class="accent-amber-500">
+                                <span class="text-sm font-bold text-stone-800"><i class="fa-solid fa-money-bill-wave text-emerald-600 mr-1.5"></i> Dinheiro</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Campo Troco (Oculto exceto se Dinheiro) -->
+                        <div id="change-field" class="hidden pt-1">
+                            <label class="block text-xs font-semibold text-stone-600 mb-1">Precisa de troco para quanto?</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500 text-sm font-bold">R$</span>
+                                <input type="number" id="change-amount" step="0.01" placeholder="Ex: 50.00" class="w-full pl-9 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Finalização para WhatsApp -->
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-4 rounded-2xl shadow-lg mt-6 transition-all flex items-center justify-center gap-2 text-lg active:scale-95">
+                        <i class="fa-brands fa-whatsapp text-xl"></i> Enviar Pedido via WhatsApp
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SISTEMA DE LÓGICA DO NEGÓCIO (JAVASCRIPT REATIVO) -->
+    <script>
+        // --- 1. DADOS INICIAIS DO CARDÁPIO REAL KARECA'S FOOD ---
+        const DEFAULT_MENU = [
+            // Hambúrgueres
+            { id: "h1", nome: "X-Burguer", preco: 6.90, descricao: "Hambúrguer caseiro de alta qualidade e queijo derretido.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h2", nome: "X-Burguer Duplo", preco: 8.90, descricao: "Dois hambúrgueres caseiros e muito queijo.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h3", nome: "X-Salada", preco: 9.50, descricao: "Hambúrguer, queijo muçarela, alface fresca, tomate e maionese artesanal.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h4", nome: "X-Salada Duplo", preco: 11.50, descricao: "Dois hambúrgueres, queijo muçarela, alface fresca, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h5", nome: "Cheddar Bacon", preco: 12.00, descricao: "Hambúrguer, muito cheddar cremoso e bacon fatiado crocante.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h6", nome: "X-Bacon", preco: 10.50, descricao: "Combinação clássica de hambúrguer, queijo e fatias generosas de bacon.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h7", nome: "X-Bacon Duplo", preco: 12.50, descricao: "Dois hambúrgueres, muito queijo e muito bacon.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h8", nome: "X-Bacon Salada", preco: 12.50, descricao: "Hambúrguer, queijo, bacon fatiado, alface, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h9", nome: "X-Egg", preco: 9.50, descricao: "Hambúrguer caseiro, queijo derretido e ovo estalado na chapa.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h10", nome: "X-Egg e Salada", preco: 11.50, descricao: "Hambúrguer, queijo, ovo, alface, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h11", nome: "X-Egg Salada e Bacon", preco: 13.50, descricao: "Hambúrguer, queijo, ovo, bacon fatiado, alface, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h12", nome: "X-Frango", preco: 9.50, descricao: "Filé de frango grelhado e queijo muçarela derretido.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h13", nome: "X-Frango e Salada", preco: 11.50, descricao: "Filé de frango grelhado, queijo, alface, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h14", nome: "X-Frango Salada e Bacon", preco: 14.50, descricao: "Filé de frango, queijo, bacon, alface, tomate e maionese da casa.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h15", nome: "X-Calabresa", preco: 10.50, descricao: "Calabresa fatiada grelhada acebolada e queijo muçarela derretido.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h16", nome: "X-Calabresa e Salada", preco: 12.50, descricao: "Calabresa acebolada grelhada, queijo muçarela, alface, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h17", nome: "X-Calabresa Salada e Bacon", preco: 15.00, descricao: "Calabresa acebolada grelhada, queijo, bacon, alface, tomate e maionese.", categoria: "Hambúrguer", disponivel: true },
+            { id: "h18", nome: "X-Tudo", preco: 21.90, descricao: "O lanche monstruoso da casa. Contém todos os recheios da chapa!", categoria: "Hambúrguer", disponivel: true },
+            
+            // Hot Dogs
+            { id: "d1", nome: "Hot Dog Simples (1 Salsicha)", preco: 6.00, descricao: "Pão de dog, salsicha, purê, milho, ervilha, cheddar, catupiry, batata palha e molhos.", categoria: "Hot Dog", disponivel: true },
+            { id: "d2", nome: "Hot Dog Simples c/ Bacon", preco: 7.00, descricao: "Pão de dog, salsicha, bacon crocante, purê, milho, ervilha, cheddar, catupiry, batata palha e molhos.", categoria: "Hot Dog", disponivel: true },
+            { id: "d3", nome: "Hot Dog Duplo (2 Salsichas)", preco: 8.00, descricao: "Pão de dog, duas salsichas grelhadas, purê de batata, milho, ervilha, cheddar, catupiry, batata palha e molhos da casa.", categoria: "Hot Dog", disponivel: true },
+            { id: "d4", nome: "Hot Dog Duplo c/ Bacon", preco: 9.50, descricao: "Pão de dog, duas salsichas, muito bacon, purê, milho, ervilha, queijos e batata palha.", categoria: "Hot Dog", disponivel: true },
+            { id: "d5", nome: "Hot Dog Triplo (3 Salsichas)", preco: 10.00, descricao: "Super dogão com três salsichas e todos os complementos clássicos.", categoria: "Hot Dog", disponivel: true },
+            { id: "d6", nome: "Hot Dog Triplo c/ Bacon", preco: 13.00, descricao: "Super dogão com três salsichas, muito bacon e todos os complementos clássicos.", categoria: "Hot Dog", disponivel: true },
+            { id: "d7", nome: "Dogão Tudo", preco: 14.00, descricao: "O campeão de vendas da categoria dogão com adicional total de queijos.", categoria: "Hot Dog", disponivel: true },
+            { id: "d8", nome: "Hot Burguer", preco: 10.00, descricao: "Dupla perfeita: carne de hambúrguer e salsicha grelhada juntas no pão.", categoria: "Hot Dog", disponivel: true },
+
+            // Combos
+            { id: "c1", nome: "Combo Aliança", preco: 26.00, descricao: "X-Burguer + Batata Frita P + Refrigerante Lata 269ml.", categoria: "Combos", disponivel: true },
+            { id: "c2", nome: "Super Combo", preco: 28.00, descricao: "X-Salada + Batata Frita P + Refrigerante Lata 269ml.", categoria: "Combos", disponivel: true },
+            { id: "c3", nome: "Mega Combo", preco: 32.00, descricao: "X-Salada Bacon + Batata Frita P + Refrigerante Lata 269ml.", categoria: "Combos", disponivel: true },
+            { id: "c4", nome: "Cheddar Combo", preco: 31.00, descricao: "Cheddar Bacon + Batata Frita P + Refrigerante Lata 269ml.", categoria: "Combos", disponivel: true },
+            { id: "c5", nome: "Kareca Combo", preco: 34.00, descricao: "X-Egg Salada Bacon + Batata Frita P + Refrigerante Lata 269ml.", categoria: "Combos", disponivel: true },
+            { id: "c6", nome: "Combo Casal", preco: 48.00, descricao: "2x X-Salada + Batata Frita Média + 2x Refrigerante Lata 269ml.", categoria: "Combos", disponivel: true },
+            { id: "c7", nome: "Combo Família", preco: 88.00, descricao: "4x X-Salada ou Hot Dog Duplo c/ bacon + Batata Frita Grande + Refrigerante 2L.", categoria: "Combos", disponivel: true },
+
+            // Batatas / Porções
+            { id: "p1", nome: "Batata Frita Pequena", preco: 4.50, descricao: "Porção individual super crocante.", categoria: "Porções", disponivel: true },
+            { id: "p2", nome: "Batata Frita Média", preco: 8.50, descricao: "Porção perfeita para compartilhar.", categoria: "Porções", disponivel: true },
+            { id: "p3", nome: "Batata Frita Grande", preco: 13.00, descricao: "Porção caprichada tamanho família.", categoria: "Porções", disponivel: true },
+            { id: "p4", nome: "Batata Aliança (Média)", preco: 15.00, descricao: "Batata frita, salsicha rodela, bacon, cebola roxa, queijo parmesão ralado e catupiry.", categoria: "Porções", disponivel: true },
+            { id: "p5", nome: "Batata Aliança (Grande)", preco: 25.00, descricao: "Super porção de batata frita com salsicha rodela, bacon, cebola roxa, parmesão e catupiry.", categoria: "Porções", disponivel: true },
+            { id: "p6", nome: "Batata Espetaculosa (Média)", preco: 15.00, descricao: "Batata frita, bacon, muçarela, cheddar, catupiry, molho barbecue e maionese.", categoria: "Porções", disponivel: true },
+            { id: "p7", nome: "Batata Espetaculosa (Grande)", preco: 25.00, descricao: "Super porção espetaculosa com molho especial, cheddar, catupiry e muito bacon.", categoria: "Porções", disponivel: true },
+
+            // Bebidas
+            { id: "b1", nome: "Refrigerante Lata 269ml", preco: 3.50, descricao: "Pepsi, Guaraná, Sukita, Itubaína conforme disponibilidade.", categoria: "Bebidas", disponivel: true },
+            { id: "b2", nome: "Refrigerante Lata 350ml", preco: 4.50, descricao: "Coca-Cola, Guaraná Antarctica ou Fanta.", categoria: "Bebidas", disponivel: true },
+            { id: "b3", nome: "Refrigerante 600ml", preco: 7.00, descricao: "Coca-Cola ou Guaraná Antarctica.", categoria: "Bebidas", disponivel: true },
+            { id: "b4", nome: "Refrigerante 2L (Itubaína/Sukita/Pepsi)", preco: 9.00, descricao: "Perfeito para acompanhar seus combos.", categoria: "Bebidas", disponivel: true },
+            { id: "b5", nome: "Refrigerante 2L (Coca/Guaraná/Fanta)", preco: 12.00, descricao: "Refrigerantes de primeira linha para sua mesa.", categoria: "Bebidas", disponivel: true },
+            { id: "b6", nome: "Água sem Gás", preco: 3.00, descricao: "Garrafa 500ml.", categoria: "Bebidas", disponivel: true }
+        ];
+
+        // --- 2. ESTADO DA APLICAÇÃO (GESTÃO DE ESTADO) ---
+        let products = DEFAULT_MENU;
+        let cart = [];
+        let currentCategory = 'all';
+        let storeOpen = true; 
+        let deliveryFee = 7.00;
+
+        // --- 3. UTILITÁRIO DE NOTIFICAÇÕES TOAST ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-emerald-600' : 'bg-red-600';
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between gap-3 pointer-events-auto translate-y-2 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid ${icon}"></i>
+                    <span class="text-sm font-semibold">${message}</span>
+                </div>
+                <button class="text-white/80 hover:text-white" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+            
+            // Ativa animação
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Remoção automática
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- 4. FORMATADORES AUXILIARES ---
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function maskPhone(input) {
+            let value = input.value.replace(/\D/g, "");
+            if (value.length > 11) value = value.slice(0, 11);
+            if (value.length > 10) {
+                input.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+            } else if (value.length > 5) {
+                input.value = `(${value.slice(0, 2)}) ${value.slice(2, 6)}-${value.slice(6)}`;
+            } else if (value.length > 2) {
+                input.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            } else if (value.length > 0) {
+                input.value = `(${value}`;
+            } else {
+                input.value = "";
+            }
+        }
+
+        // --- 5. RENDERIZADOR DO MENU DO CLIENTE ---
+        function renderMenu(menuList = products) {
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('empty-search-state');
+            grid.innerHTML = '';
+
+            const filtered = menuList.filter(p => {
+                const matchCat = currentCategory === 'all' || p.categoria === currentCategory;
+                const matchDisp = p.disponivel === true;
+                return matchCat && matchDisp;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(p => {
+                const itemInCart = cart.find(c => c.id === p.id);
+                const count = itemInCart ? itemInCart.qty : 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-3xl border border-stone-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start gap-2">
+                            <h3 class="font-bold text-stone-800 group-hover:text-amber-600 transition-colors">${p.nome}</h3>
+                            <span class="text-amber-500 font-extrabold text-sm whitespace-nowrap">${formatCurrency(p.preco)}</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-1 line-clamp-3">${p.descricao || 'Sem descrição cadastrada.'}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-stone-50 flex items-center justify-between">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-stone-400 bg-stone-100 px-2 py-0.5 rounded-md">${p.categoria}</span>
+                        
+                        <div id="control-${p.id}">
+                            ${count > 0 ? `
+                                <div class="flex items-center gap-2.5 bg-amber-500 text-white rounded-xl px-2 py-1 shadow-sm">
+                                    <button onclick="changeQty('${p.id}', -1)" class="w-6 h-6 flex items-center justify-center font-bold hover:bg-amber-600 rounded-md transition-all"><i class="fa-solid fa-minus text-xs"></i></button>
+                                    <span class="font-extrabold text-sm w-4 text-center">${count}</span>
+                                    <button onclick="changeQty('${p.id}', 1)" class="w-6 h-6 flex items-center justify-center font-bold hover:bg-amber-600 rounded-md transition-all"><i class="fa-solid fa-plus text-xs"></i></button>
+                                </div>
+                            ` : `
+                                <button onclick="addToCart('${p.id}')" class="bg-stone-900 hover:bg-amber-500 hover:text-white text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
+                                    <i class="fa-solid fa-plus"></i> Adicionar
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterMenu() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            if (!term) {
+                renderMenu();
+                return;
+            }
+            const filtered = products.filter(p => 
+                p.nome.toLowerCase().includes(term) || 
+                (p.descricao && p.descricao.toLowerCase().includes(term)) ||
+                p.categoria.toLowerCase().includes(term)
+            );
+            renderMenu(filtered);
+        }
+
+        // Seleção de categoria do cardápio
+        function selectCategory(category) {
+            currentCategory = category;
+            
+            // Atualiza botões ativos das categorias
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-amber-500', 'text-white');
+                btn.classList.add('bg-white', 'text-stone-600', 'hover:bg-stone-100');
+            });
+
+            const activeBtn = event.currentTarget;
+            activeBtn.classList.remove('bg-white', 'text-stone-600', 'hover:bg-stone-100');
+            activeBtn.classList.add('active', 'bg-amber-500', 'text-white');
+
+            renderMenu();
+        }
+
+        // --- 6. MÓDULO DO CARRINHO DE COMPRAS ---
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            const existing = cart.find(c => c.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...product, qty: 1, obs: '' });
+            }
+
+            showToast(`${product.nome} adicionado ao carrinho!`);
+            updateCart();
+        }
+
+        function changeQty(id, change) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+
+            item.qty += change;
+            if (item.qty <= 0) {
+                cart = cart.filter(c => c.id !== id);
+                showToast(`Item removido.`);
+            }
+
+            updateCart();
+        }
+
+        function updateCartItemObs(id, obsValue) {
+            const item = cart.find(c => c.id === id);
+            if (item) {
+                item.obs = obsValue;
+            }
+        }
+
+        function updateCart() {
+            // Atualizar contagem no cardápio de clientes
+            renderMenu();
+
+            // Renderizar itens nos painéis
+            renderCartList('desktop');
+            renderCartList('mobile');
+
+            // Cálculos gerais
+            const subtotal = cart.reduce((acc, item) => acc + (item.preco * item.qty), 0);
+            
+            // Verifica tipo de entrega selecionado no form
+            const isDelivery = document.querySelector('input[name="delivery-type"]:checked')?.value === 'delivery' || true;
+            const finalFee = isDelivery ? deliveryFee : 0;
+            const total = subtotal + finalFee;
+
+            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+
+            // Atualizar valores do Desktop
+            document.getElementById('cart-subtotal-desktop').innerText = formatCurrency(subtotal);
+            document.getElementById('cart-delivery-desktop').innerText = isDelivery ? formatCurrency(deliveryFee) : 'Sem taxa';
+            document.getElementById('cart-total-desktop').innerText = formatCurrency(total);
+            document.getElementById('cart-badge-desktop').innerText = `${totalQty} itens`;
+
+            const dCheckoutBtn = document.getElementById('desktop-checkout-btn');
+            if (totalQty > 0) {
+                dCheckoutBtn.disabled = false;
+                dCheckoutBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3.5 rounded-2xl mt-4 transition-all flex items-center justify-center gap-2 hover:shadow-lg active:scale-95";
+            } else {
+                dCheckoutBtn.disabled = true;
+                dCheckoutBtn.className = "w-full bg-stone-300 cursor-not-allowed text-white font-extrabold py-3.5 rounded-2xl mt-4 transition-all flex items-center justify-center gap-2";
+            }
+
+            // Atualizar valores do Mobile
+            document.getElementById('cart-subtotal-mobile').innerText = formatCurrency(subtotal);
+            document.getElementById('cart-delivery-mobile').innerText = isDelivery ? formatCurrency(deliveryFee) : 'Sem taxa';
+            document.getElementById('cart-total-mobile').innerText = formatCurrency(total);
+            document.getElementById('mobile-cart-count').innerText = `${totalQty} itens no carrinho`;
+            document.getElementById('mobile-cart-total').innerText = formatCurrency(total);
+
+            const mCheckoutBtn = document.getElementById('mobile-checkout-btn');
+            if (totalQty > 0) {
+                mCheckoutBtn.disabled = false;
+                mCheckoutBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3.5 rounded-2xl mt-4 transition-all flex items-center justify-center gap-2 shadow-md active:scale-95";
+            } else {
+                mCheckoutBtn.disabled = true;
+                mCheckoutBtn.className = "w-full bg-stone-300 cursor-not-allowed text-white font-extrabold py-3.5 rounded-2xl mt-4 transition-all flex items-center justify-center gap-2";
+            }
+        }
+
+        function renderCartList(type) {
+            const container = document.getElementById(`cart-items-${type}`);
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-stone-400">
+                        <i class="fa-solid fa-basket-shopping text-3xl mb-2 text-stone-200"></i>
+                        <p class="text-xs font-semibold">O seu carrinho está vazio</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cart.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "bg-stone-50 rounded-2xl p-3 border border-stone-100 flex flex-col gap-2";
+                row.innerHTML = `
+                    <div class="flex justify-between items-start gap-1">
+                        <div>
+                            <span class="font-bold text-xs text-stone-800">${item.nome}</span>
+                            <span class="block text-[10px] text-amber-600 font-extrabold mt-0.5">${formatCurrency(item.preco)} cada</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white border border-stone-200 rounded-lg p-0.5 shadow-sm">
+                            <button onclick="changeQty('${item.id}', -1)" class="w-5 h-5 text-stone-500 hover:bg-stone-100 rounded flex items-center justify-center"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                            <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                            <button onclick="changeQty('${item.id}', 1)" class="w-5 h-5 text-stone-500 hover:bg-stone-100 rounded flex items-center justify-center"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="text" placeholder="Sem cebola, bem passado..." value="${item.obs || ''}" oninput="updateCartItemObs('${item.id}', this.value)" class="w-full bg-white border border-stone-200 rounded-lg px-2 py-1 text-[10px] focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-stone-400 text-stone-600">
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // --- 7. CONTROLES DO DRAWER E MODAIS ---
+        function openCartMobileDrawer() {
+            const drawer = document.getElementById('cart-mobile-drawer');
+            const inner = drawer.querySelector('div');
+            drawer.classList.remove('pointer-events-none', 'opacity-0');
+            inner.classList.remove('translate-y-full');
+        }
+
+        function closeCartMobileDrawer() {
+            const drawer = document.getElementById('cart-mobile-drawer');
+            const inner = drawer.querySelector('div');
+            drawer.classList.add('pointer-events-none', 'opacity-0');
+            inner.classList.add('translate-y-full');
+        }
+
+        function openCheckoutModal() {
+            closeCartMobileDrawer();
+            const modal = document.getElementById('checkout-modal');
+            const inner = modal.querySelector('div');
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            inner.classList.remove('scale-95');
+            document.getElementById('delivery-fee-badge').innerText = `Entrega R$ ${deliveryFee.toFixed(2)}`;
+        }
+
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            const inner = modal.querySelector('div');
+            modal.classList.add('pointer-events-none', 'opacity-0');
+            inner.classList.add('scale-95');
+        }
+
+        function toggleDeliveryFields(show) {
+            const fields = document.getElementById('address-fields');
+            const inputs = fields.querySelectorAll('input');
+            
+            if (show) {
+                fields.classList.remove('hidden');
+                inputs.forEach(input => input.required = true);
+            } else {
+                fields.classList.add('hidden');
+                inputs.forEach(input => {
+                    input.required = false;
+                    input.value = '';
+                });
+            }
+            updateCart();
+        }
+
+        // Controla visualização do campo troco
+        function toggleChangeField(show) {
+            const field = document.getElementById('change-field');
+            const input = document.getElementById('change-amount');
+            if (show) {
+                field.classList.remove('hidden');
+            } else {
+                field.classList.add('hidden');
+                input.value = '';
+            }
+        }
+
+        // --- 8. ENVIO DO PEDIDO (REDIRECIONAMENTO WHATSAPP) ---
+        function handleCheckout(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const deliveryType = document.querySelector('input[name="delivery-type"]:checked').value;
+            const payment = document.querySelector('input[name="payment-method"]:checked').value;
+            const changeAmount = document.getElementById('change-amount').value;
+
+            let addressText = "Retirada no Balcão";
+            let deliveryCost = 0;
+
+            if (deliveryType === 'delivery') {
+                const street = document.getElementById('addr-street').value;
+                const num = document.getElementById('addr-number').value;
+                const dist = document.getElementById('addr-district').value;
+                const comp = document.getElementById('addr-complement').value;
+                addressText = `${street}, Nº ${num} - ${dist}${comp ? ` (${comp})` : ''}`;
+                deliveryCost = deliveryFee;
+            }
+
+            const subtotal = cart.reduce((acc, item) => acc + (item.preco * item.qty), 0);
+            const finalTotal = subtotal + deliveryCost;
+
+            // Gera um ID de pedido aleatório
+            const orderId = Math.floor(1000 + Math.random() * 9000);
+
+            // Formatação do texto da mensagem do WhatsApp
+            let message = `🍔 *NOVO PEDIDO - KARECA'S FOOD* (#${orderId})\n`;
+            message += `----------------------------------------\n`;
+            message += `👤 *Cliente:* ${name}\n`;
+            message += `📱 *WhatsApp:* ${phone}\n`;
+            message += `📍 *Endereço:* ${addressText}\n`;
+            message += `🛵 *Tipo:* ${deliveryType === 'delivery' ? 'Entrega' : 'Retirar no Balcão'}\n`;
+            message += `💳 *Pagamento:* ${payment}\n`;
+            
+            if (payment === 'Dinheiro' && changeAmount) {
+                const changeValue = parseFloat(changeAmount);
+                message += `💵 *Troco para:* ${formatCurrency(changeValue)} (Troco de ${formatCurrency(changeValue - finalTotal)})\n`;
+            }
+            
+            message += `----------------------------------------\n\n`;
+            message += `🛒 *ITENS DO PEDIDO:*\n`;
+            
+            cart.forEach(item => {
+                message += `*${item.qty}x* ${item.nome} (${formatCurrency(item.preco * item.qty)})\n`;
+                if (item.obs) {
+                    message += `   _Obs: ${item.obs}_\n`;
+                }
+            });
+
+            message += `\n----------------------------------------\n`;
+            message += `💰 *Subtotal:* ${formatCurrency(subtotal)}\n`;
+            if (deliveryType === 'delivery') {
+                message += `🛵 *Taxa de Entrega:* ${formatCurrency(deliveryCost)}\n`;
+            }
+            message += `⭐ *TOTAL:* ${formatCurrency(finalTotal)}`;
+
+            // Celular de recebimento do estabelecimento
+            const zapNumber = "5511960568488"; 
+            const zapUrl = `https://api.whatsapp.com/send?phone=${zapNumber}&text=${encodeURIComponent(message)}`;
+            
+            // Abre o WhatsApp em uma nova aba
+            window.open(zapUrl, '_blank');
+
+            // Limpa o carrinho de compras e fecha o modal
+            cart = [];
+            updateCart();
+            closeCheckoutModal();
+            
+            showToast("Pedido gerado com sucesso! Redirecionando para o WhatsApp...", "success");
+        }
+
+        // --- 12. INICIALIZAÇÃO DA APLICAÇÃO ---
+        window.onload = function() {
+            renderMenu();
+            updateCart();
+        };
+    </script>
+</body>
+</html>
